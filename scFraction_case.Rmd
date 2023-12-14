@@ -1,0 +1,41 @@
+```{r}
+# Convert the data frame to a character vector
+goi <- as.character(unlist(read.table("ECM_genes.txt", header = FALSE, sep = "\t")))
+mouse_human_genes <- read.csv("HOM_MouseHumanSequence.rpt", sep="\t")
+murine_goi <- human2murine_gene(mouse_human_genes, goi)
+# prepare the count matrix
+mg_goi <- counts[intersect(unique(murine_goi), rownames(counts)), ]
+
+meta <- refine_metanames(meta)
+meta$celltype <- meta$detail_celltype
+
+
+frac_table <- fraction_accCT_table(mg_goi, mg_meta = meta, goi = rownames(mg_goi), threshold = 0.5)
+
+# Level0
+meta$groups <- meta$disease
+gene_cluster <- BPCells_global_feature(mg_goi, global_meta = meta, goi = rownames(mg_goi), threshold = 0.5)
+feature_dotplot(gene_cluster, goi = c("Ddr2", "Lamc2"), output_dir)
+
+
+# Level1
+p <- gene_ct_fraction_plot(frac_table, goi = rownames(mg_goi))
+p_title <- paste0(output_dir, "global_acc_ct_dotplot.png")
+ggsave(filename = p_title,
+    plot = p, width = 8, height = 18, units = "in")
+
+
+# Level2
+ctoi <- "Astro"
+p <- acc_ct_dotplot(tmp, goi, ctoi = ctoi)
+p_title <- paste0(output_dir, ctoi, "_ct_acc_dotplot.png")
+ggsave(filename = p_title,
+    plot = p, width = 20, height = 8, units = "in")
+
+
+# Level3
+p <- acc_ct_Diff_frac(frac_table, goi, groupby = 'celltype')
+p_title <- paste0(output_dir, "def_dotplot.png")
+ggsave(filename = p_title,
+    plot = p, width = 28, height = 8, units = "in")
+```

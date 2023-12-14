@@ -24,7 +24,7 @@ print("=====================================")
 print("=====         Global Gene Explorer         =====")
 print("=====================================")
 
-seurat <- readRDS("~/PulmoScope/global/global_smaller_sampler_harmony_seurat.rds")
+
 setwd(file.path(user_id))
 goi <- suppressWarnings(as.character(read.table(args[1], header = FALSE, sep = ";")))
 
@@ -51,9 +51,6 @@ rownames(global_meta) <- global_meta$idx
 
 # load necessary libraries
 
-goi <- c("FOXP3", "NAT10", "SAMD11", "NOC2L", "UBB", "BGN", "ACTA2", "THY1", "SERPINH1", "SPARC")
-j <- 1
-
 BPCells_global_feature <- function(MG_folders, goi, output_dir) {
         mg_goi <- open_matrix_dir(MG_folders[1])[goi, ]
         for (i in 2:length(MG_folders)) {
@@ -70,7 +67,7 @@ BPCells_global_feature <- function(MG_folders, goi, output_dir) {
         ps <- list()
         # group_celltype wise traversal
         for (j in 1:length(groups_ct)) {
-                cur_idx <- global_meta[global_meta$groups_ct %in% groups_ct[j], ]$idx
+                cur_idx <- rownames(global_meta[global_meta$groups_ct %in% groups_ct[j], ])
                 idx_mg <- mg_goi[, intersect(colnames(mg_goi), cur_idx)]
                 gct_goi <- rowMeans(expm1(idx_mg))
                 # Calculate the percentage of cells with expression above the threshold
